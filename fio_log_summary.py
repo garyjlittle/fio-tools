@@ -1,6 +1,11 @@
 import sys
 import matplotlib.pyplot as plt
 import pandas as pd
+
+# Process a set of fio _bw_ log files
+# Summarise, Add disks together to provide "total bandwidth" across all disks
+# Generate a png plot with each disk and the total bandwidth
+
 arglen=len(sys.argv)
 resdict={}
 
