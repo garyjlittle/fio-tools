@@ -85,6 +85,8 @@ mycolumns.append("Total")
 # Set the dataframe columns to the array we just created.
 pdres.columns=(mycolumns)
 
+# !!!! TODO Import the First column from one of the logs here
+
 #pandas will handle the formatting of long and/or wide dataframes.
 #it gives us a summarised view which is nice.
 print(pdres)
