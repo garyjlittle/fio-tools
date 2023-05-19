@@ -25,5 +25,9 @@ print(pdsum)
 
 ax=pdsum.plot()
 ax.set_xlabel("Time")
-ax.set_ylabel("Bandwidth (MB/s)")
+ax.set_ylabel("Bandwidth (MB/sec)")
 ax.figure.savefig("pandas-pandas.png")
+
+#Special case for iterm2 imgcat
+imgname='pandas.png'
+subprocess.call(['/bin/bash', '-i', '-c','-l', 'imgcat '+imgname])
