@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import subprocess
 import argparse
+import os
 
 # Process a set of fio _bw_ log files
 # Summarise, Add disks together to provide "total bandwidth" across all disks
@@ -21,6 +22,8 @@ def main():
     parser.add_argument("-s","--summary",action="store_true",help="Sum up the log files and show the aggregate value")
     parser.add_argument("-d","--debug",action="store_true",help="Debug")
     parser.add_argument("--table",action="store_true",help="show summary text table")
+    parser.add_argument("--dark",action="store_true",help="Use dark theme")
+
     args,filenames=parser.parse_known_args()
     metric=args.metric
     debug=args.debug
@@ -95,6 +98,11 @@ def main():
     ax.set_ylabel(metric_name)
     ax.figure.savefig(imgname)
 
+
+    #Use darkmode
+    if (args.dark):
+        plt.style.use('dark_background')
+
     #  for read only test
     ax=pdsum_read.plot()
     metric_name="read IOPS"
@@ -123,8 +131,14 @@ def main():
     ax.figure.savefig("aggregate_tmp.png",dpi=dpi,bbox_inches='tight')
 
     #Special case for iterm2 imgcat
-    # subprocess.call(['/bin/bash','-i', '-c','-l', 'imgcat '+imgname])
-    #subprocess.call(['/bin/bash','-i', '-c','-l', 'imgcat '+'read_tmp.png'])
+    if (not pdsum_read.empty):
+        subprocess.run(['/bin/bash','-i', '-c','-l', 'imgcat '+'read_tmp.png;true'])
+    if (not pdsum_write.empty):
+        subprocess.run(['/bin/bash','-i', '-c','-l', 'imgcat '+'write_tmp.png;true'])
+    #Always show aggregate?    
+    subprocess.run(['/bin/bash','-i', '-c','-l', 'imgcat '+'aggregate_tmp.png;true'])
+    
+    #Maybe print a summary table
     if (args.table):
         if (not pdsum_read.empty):
             print("Read Table:")        
