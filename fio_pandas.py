@@ -19,7 +19,7 @@ def main():
                         choices=["iops","bandwidth"],default="iops")
     parser.add_argument("--dpi",action="store",
                         help="DPI of output",type=int)
-    parser.add_argument("-s","--summary",action="store_true",
+    parser.add_argument("-s","--totals",action="store_true",
                         help="Sum up the log files and show the aggregate value")
     parser.add_argument("--noagg",action="store_true",
                         help="Do not show an aggregate view of read+writes")
@@ -117,7 +117,7 @@ def main():
         plt.style.use('dark_background')
 
     #  for read results
-    if (not args.summary):
+    if (not args.totals):
         df_read=df_read.drop(columns="read_total")
     ax=df_read.plot()
 
@@ -132,7 +132,7 @@ def main():
     ax.figure.savefig("read_tmp.png",dpi=dpi,bbox_inches='tight')
 
     #  for write reults 
-    if (not args.summary):
+    if (not args.totals):
         df_write=df_write.drop(columns="write_total")    
     ax=df_write.plot()
     if (metric=='bandwidth'):
@@ -146,7 +146,7 @@ def main():
     ax.figure.savefig("write_tmp.png",dpi=dpi,bbox_inches='tight')
 
     #  for the aggregate results
-    if (not args.summary):
+    if (not args.totals):
         df_rw=df_rw.drop(columns="rw_total")    
     ax=df_rw.plot()
     ax.legend(bbox_to_anchor = (1, 1))
@@ -156,6 +156,9 @@ def main():
         metric_name="read/write IOPS"
     ax.set_xlabel("Index")
     ax.set_ylabel(metric_name)
+
+    #Make the figure wider than it is higher and use the "tight"
+    #directive to allow a legend outside the main plot.
     ax.figure.set_size_inches(6,3)
     ax.figure.savefig("aggregate_tmp.png",dpi=dpi,bbox_inches='tight')
 
@@ -177,10 +180,10 @@ def main():
             print("Read Table:")        
             print(df_read[:5])
         if (not df_write.empty):
-            print("Write Table:")
+            print("\nWrite Table:")
             print(df_write[:5])
         #Presumably we have something... unless only trims...
-        print("R/W Summary table:")
+        print("\nR/W Summary table:")
         print(df_rw[:5])
 
 if __name__ == "__main__":
