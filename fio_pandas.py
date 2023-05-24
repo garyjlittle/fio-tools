@@ -21,6 +21,8 @@ def main():
                         help="DPI of output",type=int)
     parser.add_argument("-s","--summary",action="store_true",
                         help="Sum up the log files and show the aggregate value")
+    parser.add_argument("--noagg",action="store_true",
+                        help="Do not show an aggregate view of read+writes")
     parser.add_argument("-d","--debug",action="store_true",
                         help="Debug")
     parser.add_argument("--table",action="store_true",
@@ -49,6 +51,11 @@ def main():
         # read in the file into a temporary dataframe.  
         if os.path.exists(filename):
             fiolog_tmp_df=pd.read_csv(filename)
+            # Bandwidth is reported by fio in KB/s we
+            # want MB/s at a minimum if the metric is bandwidth
+            if (metric == "bandwidth"):
+                #value is always column 1
+                fiolog_tmp_df.iloc[:,1]=fiolog_tmp_df.iloc[:,1]/1000
         else:
             print("File does not exist :",filename)
             exit()            
@@ -113,7 +120,11 @@ def main():
     if (not args.summary):
         df_read=df_read.drop(columns="read_total")
     ax=df_read.plot()
-    metric_name="read IOPS"
+
+    if (metric=='bandwidth'):
+        metric_name="Read MB/s"
+    else:        
+        metric_name="read IOPS"
     ax.legend(bbox_to_anchor = (1, 1))
     ax.set_xlabel("Index")
     ax.set_ylabel(metric_name)
@@ -124,7 +135,10 @@ def main():
     if (not args.summary):
         df_write=df_write.drop(columns="write_total")    
     ax=df_write.plot()
-    metric_name="write IOPS"
+    if (metric=='bandwidth'):
+        metric_name="Write MB/s"
+    else:        
+        metric_name="write IOPS"
     ax.legend(bbox_to_anchor = (1, 1))
     ax.set_xlabel("Index")
     ax.set_ylabel(metric_name)
@@ -136,7 +150,10 @@ def main():
         df_rw=df_rw.drop(columns="rw_total")    
     ax=df_rw.plot()
     ax.legend(bbox_to_anchor = (1, 1))
-    metric_name="read/write IOPS"
+    if (metric=='bandwidth'):
+        metric_name="Read/Write MB/s"
+    else:
+        metric_name="read/write IOPS"
     ax.set_xlabel("Index")
     ax.set_ylabel(metric_name)
     ax.figure.set_size_inches(6,3)
@@ -151,7 +168,8 @@ def main():
     if (not df_write.empty):
         subprocess.run(['/bin/bash','-i', '-c','-l', 'imgcat '+'write_tmp.png;true'])
     #Always show aggregate?    
-    subprocess.run(['/bin/bash','-i', '-c','-l', 'imgcat '+'aggregate_tmp.png;true'])
+    if (not args.noagg):
+        subprocess.run(['/bin/bash','-i', '-c','-l', 'imgcat '+'aggregate_tmp.png;true'])
     
     #Maybe print a summary table - useful if imgcat is not available
     if (args.table):
