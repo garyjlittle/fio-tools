@@ -13,22 +13,26 @@ def main():
     df_write=pd.DataFrame()
     df_rw=pd.DataFrame()
 
-    parser=argparse.ArgumentParser()
+    parser=argparse.ArgumentParser(
+        description="Use this to plot the output of fio log files.  Just pass a list of files on the command line"
+    )
     parser.add_argument("-m","--metric",action="store",dest="metric",
                         help="Type of metric e.g. iops,bandwidth",
                         choices=["iops","bandwidth"],default="iops")
     parser.add_argument("--dpi",action="store",
-                        help="DPI of output",type=int)
-    parser.add_argument("-s","--totals",action="store_true",
-                        help="Sum up the log files and show the aggregate value")
+                        help="DPI of output 100 is the default.  Larger DPI makes bigger plots",type=int)
+    parser.add_argument("--totals",action="store_true",
+                        help="Add series totaling across all files/devices")
     parser.add_argument("--noagg",action="store_true",
                         help="Do not show an aggregate view of read+writes")
     parser.add_argument("-d","--debug",action="store_true",
                         help="Debug")
     parser.add_argument("--table",action="store_true",
                         help="show summary text table")
-    parser.add_argument("--dark",action="store_true",
-                        help="Use dark theme")
+    parser.add_argument("--theme",action="store",
+                        choices=["light","dark"],
+                        default="dark",
+                        help="Use theme default is dark theme")
 
     #Use parse_known_args because we may have any number of args as filenames
     args,filenames=parser.parse_known_args()
@@ -113,7 +117,7 @@ def main():
     #
 
     #Use darkmode
-    if (args.dark):
+    if (args.theme=="dark"):
         plt.style.use('dark_background')
 
     #  for read results
