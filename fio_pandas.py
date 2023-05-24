@@ -144,7 +144,8 @@ def main():
 
     #Special case for iterm2 imgcat - for some reason when we call subprocess.run
     #with /bin/bash, we need to use ;true to avoid leaving the subshell in a `stopped` 
-    #state.
+    #state.  For macs - maybe disable image retina display because the charts are hard
+    #to read on a retina laptop display.
     if (not df_read.empty):
         subprocess.run(['/bin/bash','-i', '-c','-l', 'imgcat '+'read_tmp.png;true'])
     if (not df_write.empty):
