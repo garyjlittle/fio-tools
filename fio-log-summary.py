@@ -6,7 +6,9 @@ import pandas as pd
 
 # Process a set of fio log files either iops or bandwidth
 # spit into three dataframes; read, write and combined, then plot
-# as a line chart and save png to disk.
+# as a line chart and save png to disk.  By default we will print
+# everything to show the user everything, then have the user reduce
+# the output as needed.
 
 def main():
     df_read=pd.DataFrame()
@@ -21,10 +23,16 @@ def main():
                         choices=["iops","bandwidth"],default="iops")
     parser.add_argument("--dpi",action="store",
                         help="DPI of output 100 is the default.  Larger DPI makes bigger plots",type=int)
-    parser.add_argument("--totals",action="store_true",
-                        help="Add series totaling across all files/devices")
-    parser.add_argument("--noagg",action="store_true",
-                        help="Do not show an aggregate view of read+writes")
+    parser.add_argument("--nototals",action="store_true",
+                        dest="skiptotals",default=False,
+                        help="Don't show a total for all files/devices.  Useful if the chart is compressed too much")
+    parser.add_argument("--noagg",action="store_false",
+                        dest="showaggr",default=True,
+                        help="Skip the aggregate view of read+writes.  Saves screen real-estate")
+    parser.add_argument("--noreads",action="store_true",
+                        help="Skip the read chart")
+    parser.add_argument("--nowrites",action="store_true",
+                        help="Skip the writes chart")    
     parser.add_argument("-d","--debug",action="store_true",
                         help="Debug")
     parser.add_argument("--table",action="store_true",
@@ -123,7 +131,7 @@ def main():
         plt.style.use('Solarize_Light2')        
 
     #  for read results
-    if (not args.totals):
+    if (args.skiptotals):
         df_read=df_read.drop(columns="read_total")
     ax=df_read.plot()
 
@@ -138,7 +146,7 @@ def main():
     ax.figure.savefig("read_tmp.png",dpi=dpi,bbox_inches='tight')
 
     #  for write reults 
-    if (not args.totals):
+    if (args.skiptotals):
         df_write=df_write.drop(columns="write_total")    
     ax=df_write.plot()
     if (metric=='bandwidth'):
@@ -152,7 +160,7 @@ def main():
     ax.figure.savefig("write_tmp.png",dpi=dpi,bbox_inches='tight')
 
     #  for the aggregate results
-    if (not args.totals):
+    if (args.skiptotals):
         df_rw=df_rw.drop(columns="rw_total")    
     ax=df_rw.plot()
     ax.legend(bbox_to_anchor = (1, 1))
@@ -172,12 +180,12 @@ def main():
     #with /bin/bash, we need to use ;true to avoid leaving the subshell in a `stopped` 
     #state.  For macs - maybe disable image retina display because the charts are hard
     #to read on a retina laptop display.
-    if (not df_read.empty):
+    if (not df_read.empty and not args.noreads):
         subprocess.run(['/bin/bash','-i', '-c','-l', 'imgcat '+'read_tmp.png;true'])
-    if (not df_write.empty):
+    if (not df_write.empty and not args.nowrites):
         subprocess.run(['/bin/bash','-i', '-c','-l', 'imgcat '+'write_tmp.png;true'])
     #Always show aggregate?    
-    if (not args.noagg):
+    if (args.showaggr):
         subprocess.run(['/bin/bash','-i', '-c','-l', 'imgcat '+'aggregate_tmp.png;true'])
     
     #Maybe print a summary table - useful if imgcat is not available
