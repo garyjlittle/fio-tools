@@ -22,9 +22,9 @@ optional arguments:
   --table               show summary text table
   --theme {light,dark}  Use theme default is dark theme
   ```
-  ### Usage
+  ### fio-log-summay Usage
   e.g. ` python3 ./fio-log-summary.py fio-iop-logs/random-rw-4-jobs.*.log --theme light`
-  ### Output
+  ### fio-logh-summary Output
   ##### Read IOPS
   ![Reads](https://github.com/garyjlittle/fio-tools/blob/91bd51ba681e3002de971c0ddc0c5de5866e4da9/example-output/read_tmp.png)
   ##### Write IOPS
