@@ -119,6 +119,8 @@ def main():
     #Use darkmode
     if (args.theme=="dark"):
         plt.style.use('dark_background')
+    elif (args.theme=="light"):
+        plt.style.use('Solarize_Light2')        
 
     #  for read results
     if (not args.totals):
